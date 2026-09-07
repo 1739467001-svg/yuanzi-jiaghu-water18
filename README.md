@@ -15,6 +15,7 @@ npm run dev
 
 ```bash
 npm test
+npm run validate:world
 npm run build
 npm run preview
 ```
