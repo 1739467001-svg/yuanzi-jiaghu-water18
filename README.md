@@ -77,6 +77,7 @@ src/world/models.js         角色、建筑、桥梁、树木与原子雕塑
 src/world/config.js         建筑布局、角色设定、主题
 src/world/engine.js         本地寻路、日程与社交状态机
 src/world/aiTownAdapter.js  上游坐标与公开字段适配边界
+server/content.mjs        赛事与作品只读内容服务
 src/data/editions.json      56 条来源作品
 server/chat.mjs             本地资料检索与可选模型代理
 scripts/import-content.mjs 来源数据导入
