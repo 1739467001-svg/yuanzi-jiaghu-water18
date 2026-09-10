@@ -2,6 +2,15 @@
 
 原子公社的可运行 3D 社区原型。白蓝斗笠侠客、青瓦茶楼、共创工坊、开源书院、石桥与比赛展示馆共同构成第一张地图。
 
+## 在线演示与 GitHub
+
+- 仓库：https://github.com/1739467001-svg/Atomic-Jianghu
+- 在线 3D 演示：https://1739467001-svg.github.io/Atomic-Jianghu/
+
+推送 main 后，GitHub Actions 自动测试、构建并部署 GitHub Pages。线上使用浏览器内的资料检索与演示对话，不提供模型代理或云端数据存储。作品、3D 小镇、收藏与授权记忆均可使用。
+
+手动构建同样的静态版：`VITE_BASE_PATH=/Atomic-Jianghu/ VITE_STATIC_DEMO=true npm run build`。部署产物是 dist；本地开发不设这两个变量即可继续使用 Vite 提供的 API。
+
 ## 启动
 
 需要 Node.js 22.12+。
