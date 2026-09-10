@@ -5,3 +5,6 @@ dist/
 references/ai-town/
 .DS_Store
 artifacts/
+
+.env.*
+!.env.example
