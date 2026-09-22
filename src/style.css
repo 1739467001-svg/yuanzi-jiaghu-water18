@@ -261,3 +261,11 @@
 .night .memory-choice{background:#1d2c47;border-color:#2f4568}
 .night .memory-choice strong{color:#e0c48c}
 .night .memory-choice p{color:#a9b8cc}
+/* ---- 账号与迁移 ---- */
+.auth-body{padding:22px 24px}
+.auth-body label{display:block;font-size:11px;color:#8c9a7c;margin-bottom:14px}
+.auth-body input{display:block;width:100%;padding:10px 12px;background:#fffef5;border:1px solid #dbe3ce;border-radius:5px;margin-top:7px;color:#556e49;font-size:13px}
+.auth-note{font-size:10px;color:#9ca48e;line-height:1.9;margin-bottom:16px}
+.night .auth-body label{color:#9aa9c0}
+.night .auth-body input{background:#0d1626;border-color:#2b3d5c;color:var(--night-ink)}
+.night .auth-note{color:#66788f}

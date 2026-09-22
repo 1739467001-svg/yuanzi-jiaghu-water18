@@ -8,9 +8,12 @@
 // POST /api/admin/rollback          {id} 回滚到指定发布版本
 // POST /api/admin/import/preview   来源数据差异预览（不写文件）
 // POST /api/admin/import/apply     应用导入（写 editions.json + 复制媒体）
+// POST /api/admin/promote          开发态：把当前登录会员提升为运营角色
+// 鉴权：除 promote 外的所有接口都要求已登录且具备运营角色（server/auth.mjs）。
 import {applyOverrides,overrideEdition,overrideWork,clearOverrides,getAudit,isPersisted,saveVersion,listVersions,rollbackVersion,logAudit} from './opsStore.mjs';
 import {catalog,PUBLICATION_STATUSES} from '../src/content/catalog.js';
 import {planImport,runImport} from '../scripts/import-engine.mjs';
+import {userForToken,canOperate,sameOrigin,readCookie,setRole} from './auth.mjs';
 
 const send=(res,status,body)=>{res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(JSON.stringify(body));};
 const readBody=req=>new Promise((resolve,reject)=>{let raw='';req.on('data',c=>{raw+=c;if(raw.length>1e5)reject(new Error('请求体过大'));});req.on('end',()=>{try{resolve(raw?JSON.parse(raw):{});}catch{reject(new Error('请求体不是合法 JSON'));}});req.on('error',reject);});
@@ -20,7 +23,17 @@ export function adminPlugin(){
   server.middlewares.use(async (req,res,next)=>{
    const url=new URL(req.url,'http://localhost');
    if(!url.pathname.startsWith('/api/admin'))return next();
+   // 鉴权：未登录 401；已登录但无运营角色 403。身份只认服务端会话。
+   const operator=userForToken(readCookie(req.headers.cookie));
+   if(!operator)return send(res,401,{error:'运营后台需要登录',code:'unauthorized'});
+   if(url.pathname!=='/api/admin/promote'&&!canOperate(operator))return send(res,403,{error:'当前账号没有运营权限',code:'forbidden'});
    try{
+    if(url.pathname==='/api/admin/promote'&&req.method==='POST'){
+     if(!sameOrigin(req))return send(res,403,{error:'来源校验失败',code:'bad_origin'});
+     const user=setRole(operator.id,'operator');
+     logAudit({action:'提升运营权限',target:user.id,before:'member',after:'operator'});
+     return send(res,200,{ok:true,user,audit:getAudit().slice(0,20)});
+    }
     if(url.pathname==='/api/admin/content'&&req.method==='GET'){
      const full=applyOverrides(catalog);
      return send(res,200,{snapshotId:catalog.snapshotId,statuses:PUBLICATION_STATUSES,persisted:isPersisted(),editions:full.editions,versions:listVersions(),audit:getAudit()});

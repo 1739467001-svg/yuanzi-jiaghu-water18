@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {validatePeer,validateDirect,PeerTable,snapshotToWire,wireToScene,createWorldLink,WORLD_CHANNEL,PEER_TIMEOUT} from '../src/world/net.js';
+const waitFor=async(predicate,timeout=3000)=>{const start=Date.now();while(Date.now()-start<timeout){if(predicate())return true;await new Promise(r=>setTimeout(r,20));}return predicate();};
+const room1='test-room-net-'+Math.random().toString(36).slice(2,8);
+const room2='test-room-dm-'+Math.random().toString(36).slice(2,8);
 import {publicActorSnapshot} from '../src/world/aiTownAdapter.js';
 
 test('wire format only carries whitelisted public fields', () => {
@@ -36,10 +39,10 @@ test('peer table tracks join, leave and timeout pruning', () => {
 
 test('two world links see each other, exchange positions and part cleanly', async (t) => {
  const eventsA=[];const eventsB=[];const peersA=[];const peersB=[];
- const A=createWorldLink({selfId:'p_a',getIdentity:()=>({name:'少侠甲',color:'#427ab5'}),onEvent:e=>eventsA.push(e.kind+':'+e.peer.id),onPeers:l=>peersA.push(l),channel:'test-room-1'});
- const B=createWorldLink({selfId:'p_b',getIdentity:()=>({name:'少侠乙',color:'#719783'}),onEvent:e=>eventsB.push(e.kind+':'+e.peer.id),onPeers:l=>peersB.push(l),channel:'test-room-1'});
+ const A=createWorldLink({selfId:'p_a',getIdentity:()=>({name:'少侠甲',color:'#427ab5'}),onEvent:e=>eventsA.push(e.kind+':'+e.peer.id),onPeers:l=>peersA.push(l),channel:room1});
+ const B=createWorldLink({selfId:'p_b',getIdentity:()=>({name:'少侠乙',color:'#719783'}),onEvent:e=>eventsB.push(e.kind+':'+e.peer.id),onPeers:l=>peersB.push(l),channel:room1});
  t.after(()=>{A?.leave();B?.leave();});
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>eventsA.some(e=>e.startsWith('join:'))&&eventsB.some(e=>e.startsWith('join:')));
  // 存在握手：加入事件立即触发，但位置未知前不进入可渲染列表。
  assert.ok(eventsA.includes('join:p_b')&&eventsB.includes('join:p_a'));
  assert.equal(A.peers().length,0,'未收到位置广播前不渲染');
@@ -47,7 +50,7 @@ test('two world links see each other, exchange positions and part cleanly', asyn
  // 位置广播：B 移动后 A 的 peer 表更新。
  A.publish({id:'p_a',name:'少侠甲',x:-3,z:4,angle:.5,state:'自在漫游'});
  B.publish({id:'p_b',name:'少侠乙',x:7,z:-2,angle:-1.5,state:'看展与歇脚'});
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>A.peers().length>0);
  assert.equal(A.peers().length,1);
  assert.equal(B.peers().length,1);
  const seen=B.peers()[0];
@@ -74,35 +77,35 @@ test('upstream public actor snapshot never leaks conversations or memories', () 
 
 test('private chat routes only to the addressee and never reaches observers or the public feed', async (t) => {
  const directsA=[],directsB=[],directsC=[],publicEvents=[];
- const A=createWorldLink({selfId:'p_a',onDirect:m=>directsA.push(m),channel:'test-room-2'});
- const B=createWorldLink({selfId:'p_b',onDirect:m=>directsB.push(m),channel:'test-room-2'});
- const C=createWorldLink({selfId:'p_c',onDirect:m=>directsC.push(m),onEvent:e=>publicEvents.push(e.kind),channel:'test-room-2'});
+ const A=createWorldLink({selfId:'p_a',onDirect:m=>directsA.push(m),channel:room2});
+ const B=createWorldLink({selfId:'p_b',onDirect:m=>directsB.push(m),channel:room2});
+ const C=createWorldLink({selfId:'p_c',onDirect:m=>directsC.push(m),onEvent:e=>publicEvents.push(e.kind),channel:room2});
  t.after(()=>{A?.leave();B?.leave();C?.leave();});
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsB.length>0);
  // 邀请与接受
  const invite=A.sendInvite('p_b');
  assert.ok(invite&&invite.to==='p_b');
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsB.some(m=>m.t==='invite'));
  assert.equal(directsB.filter(m=>m.t==='invite').length,1);
  assert.equal(directsC.length,0,'旁观者收不到邀请');
  const reply=B.sendInviteReply('p_a',invite.session,true);
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsA.some(m=>m.t==='invite-reply'&&m.accept));
  assert.equal(directsA.filter(m=>m.t==='invite-reply'&&m.accept).length,1);
  assert.equal(directsC.length,0);
  // 私聊正文只到对方
  const dm=A.sendDM('p_b','只有我们两人可见');
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsB.some(m=>m.t==='dm'));
  const received=directsB.find(m=>m.t==='dm');
  assert.equal(received.body,'只有我们两人可见');
  assert.equal(directsC.length,0,'旁观者结构上收不到私聊正文');
  assert.ok(!publicEvents.some(k=>k==='dm'),'私聊不产生公开事件');
  // 发送给自己的消息不被路由回来
  A.sendDM('p_a','自言自语');
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsB.some(m=>m.t==='dm'));
  assert.equal(directsA.filter(m=>m.t==='dm').length,0);
  // 屏蔽
  A.sendBlock('p_b');
- await new Promise(r=>setTimeout(r,60));
+ await waitFor(()=>directsB.some(m=>m.t==='block'));
  assert.ok(directsB.some(m=>m.t==='block'&&m.from==='p_a'));
  // 非法私聊消息被拒绝
  assert.equal(validateDirect({t:'dm',from:'p_a',to:'p_b',body:''}),null);

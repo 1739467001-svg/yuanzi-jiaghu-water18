@@ -64,6 +64,14 @@ export function userForToken(token){
  const user=users()[session.userId];
  return user?publicUser(user):null;
 }
+export function setRole(userId,role){
+ if(!ROLES.includes(role))throw new Error(`非法的角色: ${role}`);
+ const list=users();
+ if(!list[userId])throw new Error(`用户不存在: ${userId}`);
+ list[userId].role=role;
+ saveUsers(list);
+ return publicUser(list[userId]);
+}
 export function roleRank(role){return Math.max(0,ROLES.indexOf(role));}
 export function canOperate(user){return !!user&&roleRank(user.role)>=roleRank('operator');}
 export const AUTH_COOKIE='atom_session';

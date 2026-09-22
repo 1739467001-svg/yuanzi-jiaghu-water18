@@ -12,13 +12,42 @@ async function api(path,body){
 function Admin(){
  const [state,setState]=useState(null),[toast,setToast]=useState(''),[tab,setTab]=useState('目录'),[openEdition,setOpenEdition]=useState(null),[error,setError]=useState('');
  const [plan,setPlan]=useState(null),[planning,setPlanning]=useState(false),[applying,setApplying]=useState(false),[label,setLabel]=useState('');
- const reload=useCallback(async()=>{try{setState(await api('/api/admin/content'));setError('');}catch(e){setError(e.message+'——本页只在开发服务器（npm run dev）下可用，静态构建不包含运营接口。');}},[]);
+ const [auth,setAuth]=useState(null),[loginDraft,setLoginDraft]=useState({nickname:'',password:''}),[loginBusy,setLoginBusy]=useState(false),[loginError,setLoginError]=useState(''),[loginMode,setLoginMode]=useState('login');
+ const canOperate=!!(auth?.user&&(auth.user.role==='operator'||auth.user.role==='admin'));
+ const reload=useCallback(async()=>{
+  try{setAuth(await (await fetch('/api/auth/me')).json());}catch{}
+  try{setState(await api('/api/admin/content'));setError('');}
+  catch(e){if(!/登录|权限/.test(e.message))setError(e.message+'——本页只在开发服务器（npm run dev）下可用，静态构建不包含运营接口。');}
+ },[]);
  useEffect(()=>{reload();},[reload]);
  useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(''),3000);return()=>clearTimeout(t);},[toast]);
+ async function doLogin(){
+  setLoginBusy(true);setLoginError('');
+  try{
+   const r=await fetch('/api/auth/'+(loginMode==='login'?'login':'register'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(loginDraft)});
+   const d=await r.json().catch(()=>({}));
+   if(!r.ok)throw new Error(d.error||'登录失败');
+   setLoginDraft({nickname:'',password:''});
+   await reload();
+  }catch(e){setLoginError(e.message);}
+  setLoginBusy(false);
+ }
+ async function doPromote(){
+  try{
+   const r=await fetch('/api/admin/promote',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+   const d=await r.json();
+   if(!r.ok)throw new Error(d.error||'提升失败');
+   setToast('已提升为运营角色');
+   await reload();
+  }catch(e){setToast(e.message);}
+ }
  async function act(scope,id,status){
   try{await api('/api/admin/publication',{scope,id,status});setToast(`${scope==='edition'?'赛事':'作品'} ${id} 已设为「${status}」`);await reload();}
   catch(e){setToast(e.message);}
  }
+ if(!auth)return <div className="wrap"><div className="banner">正在检查登录状态…</div></div>;
+ if(!auth.user)return <div className="wrap"><header className="top"><div className="lockup"><span className="seal">原<span>子</span></span><h1>运营后台 · 原子江湖<small>开发态 · ATOMHUB CONTENT OPS</small></h1></div><div className="links"><a href="/">打开江湖</a></div></header><div className="edition" style={{maxWidth:420,margin:'40px auto'}}><header><h2>登录</h2></header><p className="meta">运营后台需要登录。演示环境下登录后可直接提升为运营角色。</p><label className="label-input-wrap">昵称<input className="label-input" value={loginDraft.nickname} onChange={e=>setLoginDraft(d=>({...d,nickname:e.target.value}))} placeholder="昵称"/></label><label className="label-input-wrap">密码<input className="label-input" type="password" value={loginDraft.password} onChange={e=>setLoginDraft(d=>({...d,password:e.target.value}))} placeholder="密码"/></label><div className="actions"><button className="primary" disabled={loginBusy} onClick={doLogin}>{loginBusy?'处理中…':loginMode==='login'?'登录':'注册并登录'}</button><button onClick={()=>setLoginMode(loginMode==='login'?'register':'login')}>{loginMode==='login'?'去注册':'去登录'}</button></div>{loginError&&<p className="meta" style={{color:'#b07a66'}}>{loginError}</p>}</div></div>;
+ if(!canOperate)return <div className="wrap"><header className="top"><div className="lockup"><span className="seal">原<span>子</span></span><h1>运营后台 · 原子江湖<small>开发态 · ATOMHUB CONTENT OPS</small></h1></div><div className="links"><a href="/">打开江湖</a></div></header><div className="edition" style={{maxWidth:460,margin:'40px auto'}}><header><h2>需要运营权限</h2></header><p className="meta">当前账号「{auth.user.nickname}」是成员，没有运营权限。演示环境下可自助提升为运营角色；生产环境应由管理员分配。</p><div className="actions"><button className="primary" onClick={doPromote}>提升为运营角色</button></div></div></div>;
  if(error)return <div className="wrap"><header className="top"><div className="lockup"><span className="seal">原<span>子</span></span><h1>运营后台 · 原子江湖<small>开发态 · ATOMHUB CONTENT OPS</small></h1></div><div className="links"><a href="/">打开江湖</a></div></header><div className="banner">{error}</div></div>;
  if(!state)return <div className="wrap"><div className="banner">正在读取内容目录…</div></div>;
  return <div className="wrap">

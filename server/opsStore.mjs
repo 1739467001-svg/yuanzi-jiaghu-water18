@@ -36,6 +36,8 @@ export function overrideWork(id,status){assertStatus(status);const before=state.
 export function clearOverrides(){state.editionOverrides={};state.workOverrides={};pushAudit({actor:'运营(本地开发)',action:'清除全部发布覆盖',target:'*',before:null,after:null});}
 export function getAudit(){return state.audit;}
 export function logAudit(entry){pushAudit({actor:'运营(本地开发)',...entry});}
+// 开发态提权：把账号提升为运营角色（生产应由管理员在后台分配）。
+export function promoteToOperator(userId){return {userId,role:'operator'};}
 export function isPersisted(){return persistOk;}
 // 发布版本：把当前生效的覆盖组合存为快照，可命名、可回滚。
 export function saveVersion(label=''){

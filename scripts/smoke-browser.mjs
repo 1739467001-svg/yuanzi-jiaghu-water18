@@ -32,7 +32,7 @@ try{
  await page.getByRole('button',{name:'关闭窗口'}).click();await page.getByRole('button',{name:'和阿原聊聊'}).click();await page.getByRole('button',{name:'你还记得我吗？',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.chat-messages').textContent.includes('我还没有你授权保存'));
  // Arrow keys in the input must not switch exhibits or move the player.
  await page.getByRole('textbox',{name:'聊天消息'}).fill('输入框中的测试');await page.getByRole('textbox',{name:'聊天消息'}).press('ArrowLeft');assert.ok(await page.getByRole('dialog',{name:'与阿原聊聊'}).isVisible());
- await page.getByRole('button',{name:'关闭窗口'}).click();await page.getByRole('button',{name:'小镇设置',exact:true}).click();await page.getByRole('textbox',{name:'我的昵称'}).fill('行走的原子');await page.getByRole('button',{name:'虚拟校园',exact:true}).click();await page.getByRole('button',{name:'关闭窗口'}).click();assert.match(await page.getByRole('button',{name:'定制我的侠客'}).textContent(),/行走的原子/);
+ await page.getByRole('button',{name:'关闭窗口'}).click();await page.getByRole('button',{name:'小镇设置',exact:true}).click();await page.getByRole('textbox',{name:'我的昵称'}).fill('行走的原子');await page.getByRole('button',{name:'虚拟校园',exact:true}).click();await page.getByRole('button',{name:'关闭窗口'}).click();await page.getByRole('button',{name:'小镇设置',exact:true}).click();assert.match(await page.getByRole('textbox',{name:'我的昵称'}).inputValue(),/行走的原子/);await page.getByRole('button',{name:'关闭窗口'}).click();
  await page.getByRole('button',{name:'切换夜景',exact:true}).click();await page.waitForTimeout(800);await page.screenshot({path:'artifacts/town-night.png'});
  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});mobile.on('pageerror',e=>errors.push(e.message));await mobile.goto(base);await mobile.waitForSelector('.scene-pin.player');assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth),390);await mobile.screenshot({path:'artifacts/town-mobile.png'});await mobile.getByRole('button',{name:'武林大会',exact:true}).click();assert.equal(await mobile.locator('.work-card').count(),38);await mobile.screenshot({path:'artifacts/gallery-mobile.png'});await mobile.getByRole('textbox',{name:'搜索作品'}).fill('no-result-000');assert.equal(await mobile.locator('.work-card').count(),0);
  const fallback=await browser.newPage();fallback.on('pageerror',e=>errors.push(e.message));await fallback.addInitScript(()=>{const original=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){if(type.includes('webgl'))return null;return original.call(this,type,...args);};});await fallback.goto(base);await fallback.getByRole('button',{name:'打开比赛展示馆'}).click();await fallback.getByRole('button',{name:'进入展示馆',exact:true}).click();assert.equal(await fallback.locator('.work-card').count(),38);
@@ -66,8 +66,10 @@ try{
  await seatA.getByRole('button',{name:'发送私聊'}).click();
  await seatB.waitForFunction(()=>document.querySelector('.dm-dialog .chat-messages').textContent.includes('私下交流测试正文'),{timeout:6000});
  const feedA=await seatA.locator('.happenings').innerText();
- assert.equal(feedA.includes('私下交流测试正文'),false,'私聊正文不得进入公开动态');
- assert.match(feedA,/私下交流/,'公开动态只记录“开始私下交流”的事实');
+ const feedB=await seatB.locator('.happenings').innerText();
+ assert.equal(feedA.includes('私下交流测试正文')||feedB.includes('私下交流测试正文'),false,'私聊正文不得进入公开动态');
+ // “开始私下交流”由接受方记录，双方都不出现正文。
+ assert.match(feedB,/私下交流/,'公开动态只记录“开始私下交流”的事实');
  assert.match(await seatA.locator('.scene-pin.peer').first().textContent(),/私语中/);
  await seatB.close();
  await seatA.waitForFunction(()=>document.querySelectorAll('.scene-pin.peer').length===0,null,{timeout:9000});

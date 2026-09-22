@@ -104,6 +104,17 @@
 - 访客模式标注与能力边界说明。
 - 静态演示（GitHub Pages 形态）全链路回归通过；新增 docs/DEPLOYMENT.md（部署形态、环境变量、上线前缺口与自检命令）。
 
+## 账号体系与云端数据轮进展（2026-09-22 深夜）
+
+本轮完成（验证记录见 docs/VERIFICATION.md）：
+
+- server/auth.mjs + /api/auth：注册/登录/登出/会话，scrypt 散列、HttpOnly Cookie、来源校验、角色（member/operator）。
+- server/userStore.mjs + /api/me：按 userId 的收藏与记忆云端存储、版本冲突保护、记忆 30 天 TTL、本地→云端迁移（用户选择，不静默归并）。
+- App 登录态：顶栏访客/成员标识、登录注册面板、迁移对话框、手札同步说明。
+- 运营后台鉴权：/api/admin 全部要求运营角色；后台登录/提权 UI；审计留痕。
+- server/usageLedger.mjs：requestId 去重、预留/结算、每日预算 80%/100% 门禁、/api/usage 查询、落盘持久化。
+- 文档：DEPLOYMENT.md 已更新上线前缺口（身份、服务端权威、预算、后台权限中的前两项已落地）。
+
 下一步（按 PRD v1.0 实施路线）：
 
 - G0 收尾：双账号鉴权与位置原型、固定测试基准；再评估 G1—G3。
