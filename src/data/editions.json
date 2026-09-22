@@ -12,6 +12,13 @@
       "内容创作",
       "生活成长"
     ],
+    "trackColors": {
+      "电商出海": "#5fd0ff",
+      "金融投资": "#f5c44e",
+      "效率工具": "#a98bff",
+      "内容创作": "#ff8fb0",
+      "生活成长": "#6fe0b0"
+    },
     "works": [
       {
         "id": "funskills--ecom-video",
@@ -31,7 +38,9 @@
         "thumb": "/works/funskills/thumbs/ecom-video.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--cross-border",
@@ -51,7 +60,9 @@
         "thumb": "/works/funskills/thumbs/cross-border.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--meme-director",
@@ -71,7 +82,9 @@
         "thumb": "/works/funskills/thumbs/meme-director.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--geo-checker",
@@ -91,7 +104,9 @@
         "thumb": "/works/funskills/thumbs/geo-checker.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--ecom-ops",
@@ -111,7 +126,9 @@
         "thumb": "/works/funskills/thumbs/ecom-ops.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--ecom-arcade",
@@ -131,7 +148,9 @@
         "thumb": "/works/funskills/thumbs/ecom-arcade.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--product-radar",
@@ -151,7 +170,9 @@
         "thumb": "/works/funskills/thumbs/product-radar.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--mengli-stock",
@@ -171,7 +192,9 @@
         "thumb": "/works/funskills/thumbs/mengli-stock.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--madclaw",
@@ -191,7 +214,9 @@
         "thumb": "/works/funskills/thumbs/madclaw.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--stock-master",
@@ -210,7 +235,9 @@
         "thumb": "/works/funskills/thumbs/stock-master.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--huanzhi-fa",
@@ -229,7 +256,9 @@
         "thumb": "/works/funskills/thumbs/huanzhi-fa.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--cbed",
@@ -248,7 +277,9 @@
         "thumb": "/works/funskills/thumbs/cbed.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--caibao",
@@ -268,7 +299,9 @@
         "thumb": "/works/funskills/thumbs/caibao.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--web3quant",
@@ -287,7 +320,9 @@
         "thumb": "/works/funskills/thumbs/web3quant.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--finance-arena",
@@ -306,7 +341,9 @@
         "thumb": "/works/funskills/thumbs/finance-arena.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--skillhub",
@@ -326,7 +363,9 @@
         "thumb": "/works/funskills/thumbs/skillhub.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--icebreaker",
@@ -346,7 +385,9 @@
         "thumb": "/works/funskills/thumbs/icebreaker.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--nomoreskill",
@@ -366,7 +407,9 @@
         "thumb": "/works/funskills/thumbs/nomoreskill.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--hackathon",
@@ -385,7 +428,9 @@
         "thumb": "/works/funskills/thumbs/hackathon.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--meetgrow",
@@ -405,7 +450,9 @@
         "thumb": "/works/funskills/thumbs/meetgrow.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--hackflow-ppt",
@@ -425,7 +472,9 @@
         "thumb": "/works/funskills/thumbs/hackflow-ppt.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--lumi-lab",
@@ -445,7 +494,9 @@
         "thumb": "/works/funskills/thumbs/lumi-lab.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--info-alchemist",
@@ -465,7 +516,9 @@
         "thumb": "/works/funskills/thumbs/info-alchemist.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--ledger",
@@ -485,7 +538,10 @@
         "thumb": "/works/funskills/thumbs/ledger.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "highlight": "全程唯一的初中生选手组合 —— 15 & 16 岁搭档，平均年龄仅 15.5 岁，用一个 Skill 证明：创造力，从不设年龄门槛。",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--hammer-notes",
@@ -505,7 +561,9 @@
         "thumb": "/works/funskills/thumbs/hammer-notes.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--xhs-auto",
@@ -525,7 +583,9 @@
         "thumb": "/works/funskills/thumbs/xhs-auto.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--storymap",
@@ -545,7 +605,9 @@
         "thumb": "/works/funskills/thumbs/storymap.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--brand-growth",
@@ -565,7 +627,9 @@
         "thumb": "/works/funskills/thumbs/brand-growth.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--dialog-sim",
@@ -585,7 +649,9 @@
         "thumb": "/works/funskills/thumbs/dialog-sim.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--life-method",
@@ -604,7 +670,9 @@
         "thumb": "/works/funskills/thumbs/life-method.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--takeback",
@@ -623,7 +691,9 @@
         "thumb": "/works/funskills/thumbs/takeback.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--paradox-court",
@@ -642,7 +712,9 @@
         "thumb": "/works/funskills/thumbs/paradox-court.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--travel-planner",
@@ -662,7 +734,9 @@
         "thumb": "/works/funskills/thumbs/travel-planner.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--nut-finance",
@@ -682,7 +756,9 @@
         "thumb": "/works/funskills/thumbs/nut-finance.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--jung",
@@ -702,7 +778,9 @@
         "thumb": "/works/funskills/thumbs/jung.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--profiling",
@@ -722,7 +800,9 @@
         "thumb": "/works/funskills/thumbs/profiling.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--child-face",
@@ -742,7 +822,9 @@
         "thumb": "/works/funskills/thumbs/child-face.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "funskills--time-travel",
@@ -762,9 +844,14 @@
         "thumb": "/works/funskills/thumbs/time-travel.jpg",
         "source": "选手作品信息/繁星之夜-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "funskills"
+        "editionId": "funskills",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       }
-    ]
+    ],
+    "eventStage": "已结束",
+    "publicationStatus": "已发布",
+    "contentVersion": 1
   },
   {
     "id": "hackathon",
@@ -779,6 +866,13 @@
       "科研实验",
       "院务文化"
     ],
+    "trackColors": {
+      "智慧学务": "#6fd3ff",
+      "评奖测评": "#f5c44e",
+      "空间预约": "#a98bff",
+      "科研实验": "#6fe0b0",
+      "院务文化": "#ff8fb0"
+    },
     "works": [
       {
         "id": "hackathon--archive-hall",
@@ -798,7 +892,10 @@
         "thumb": "/works/hackathon/thumbs/archive-hall.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "highlight": "60+ 年办学历度 · 242 个班级合影 · 7000+ 名师生名册 · 34 个历史节点",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--party-build",
@@ -818,7 +915,9 @@
         "thumb": "/works/hackathon/thumbs/party-build.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--resume-screen",
@@ -838,7 +937,9 @@
         "thumb": "/works/hackathon/thumbs/resume-screen.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--affairs-task",
@@ -858,7 +959,9 @@
         "thumb": "/works/hackathon/thumbs/affairs-task.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--affairs-node",
@@ -878,7 +981,9 @@
         "thumb": "/works/hackathon/thumbs/affairs-node.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--mentor-match",
@@ -898,7 +1003,9 @@
         "thumb": "/works/hackathon/thumbs/mentor-match.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--dorm-match",
@@ -918,7 +1025,10 @@
         "thumb": "/works/hackathon/thumbs/dorm-match.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "highlight": "秒级智能匹配 · 预计减少 60%+ 寝室矛盾 · 零成本覆盖",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--scholarship-eval",
@@ -938,7 +1048,9 @@
         "thumb": "/works/hackathon/thumbs/scholarship-eval.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--scholarship-review",
@@ -958,7 +1070,9 @@
         "thumb": "/works/hackathon/thumbs/scholarship-review.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--scholarship-mcp",
@@ -978,7 +1092,9 @@
         "thumb": "/works/hackathon/thumbs/scholarship-mcp.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--seatflow",
@@ -998,7 +1114,10 @@
         "thumb": "/works/hackathon/thumbs/seatflow.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "highlight": "56 自定义坐标座位 · 3 时段/天 · ∞ 候补排队 · 100% 二维码覆盖",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--smartseat",
@@ -1018,7 +1137,9 @@
         "thumb": "/works/hackathon/thumbs/smartseat.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--seat-reserve",
@@ -1038,7 +1159,9 @@
         "thumb": "/works/hackathon/thumbs/seat-reserve.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--room-booking",
@@ -1058,7 +1181,9 @@
         "thumb": "/works/hackathon/thumbs/room-booking.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--paper-agent",
@@ -1078,7 +1203,9 @@
         "thumb": "/works/hackathon/thumbs/paper-agent.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--paper-manage",
@@ -1098,7 +1225,9 @@
         "thumb": "/works/hackathon/thumbs/paper-manage.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--lab-zhinet",
@@ -1118,7 +1247,9 @@
         "thumb": "/works/hackathon/thumbs/lab-zhinet.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       },
       {
         "id": "hackathon--lab-supply",
@@ -1138,8 +1269,36 @@
         "thumb": "/works/hackathon/thumbs/lab-supply.webp",
         "source": "选手作品信息/hackathon-showcase/assets/data.js",
         "sourceStatus": "原展示资料",
-        "editionId": "hackathon"
+        "editionId": "hackathon",
+        "publicationStatus": "已发布",
+        "contentVersion": 1
       }
-    ]
+    ],
+    "eventStage": "已结束",
+    "publicationStatus": "已发布",
+    "contentVersion": 1
+  },
+  {
+    "id": "spark",
+    "title": "星火计划",
+    "subtitle": "2026 超级个体（OPC）创业挑战赛",
+    "description": "星火燎原，单人成军。2026 年 7 月 15 日至 8 月 25 日，星火计划面向全国寻找 AI 时代的超级个体：线上组队海选，约 20 个优质项目进入上海松江七天集训营（8 月 19 日—25 日）。四大赛道覆盖 AI+智能硬件、AI 研发与应用、AIGC 视频与 AI+出海，总奖金 5 万元，全程免费。",
+    "note": "本页为依据活动手册与公开资料整理的赛事介绍稿；参赛项目、获奖名单与成果资料仍在收集中，核对后再发布作品清单。落地政策与奖项设置来自活动公开资料。",
+    "tracks": [
+      "AI+智能硬件",
+      "AI 研发与应用",
+      "AIGC 视频",
+      "AI+出海"
+    ],
+    "trackColors": {
+      "AI+智能硬件": "#f0a63c",
+      "AI 研发与应用": "#5fb8f5",
+      "AIGC 视频": "#ef7f9f",
+      "AI+出海": "#59c9a5"
+    },
+    "works": [],
+    "eventStage": "已结束",
+    "publicationStatus": "已发布",
+    "contentVersion": 1
   }
 ]

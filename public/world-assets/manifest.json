@@ -1,0 +1,65 @@
+{
+  "manifestVersion": "assets-v1",
+  "mapVersion": "atom-town-v1",
+  "conventions": {
+    "scale": "1 单位 = 1 米；角色脚底位于原点，正面朝 +Z",
+    "animations": "idle / walk / talk / listen / observe 为必备；sit / think / wave 按体验补充",
+    "lod": "正式资产需提供 LOD 或至少高低两档；程序化占位不计入",
+    "license": "每个条目必须登记来源、授权状态与使用范围；未审核资产不得进入生产构建"
+  },
+  "models": [
+    {
+      "id": "atom-sculpture",
+      "kind": "decoration",
+      "title": "原子轨道雕塑",
+      "glb": null,
+      "fallback": "procedural:atomSculpture",
+      "version": 1,
+      "license": "程序化生成原型，无外部授权",
+      "usage": "小镇广场品牌装饰"
+    },
+    {
+      "id": "plaza-core",
+      "kind": "decoration",
+      "title": "广场原子核（证明 GLB）",
+      "glb": "/world-assets/models/proof-atom-core.glb",
+      "fallback": "procedural:atomSculpture",
+      "version": 1,
+      "license": "scripts/make-proof-glb.mjs 生成的证明资产；正式素材到位后替换",
+      "usage": "广场雕塑顶端的原子核，验证 GLB 加载路径",
+      "position": [
+        -1,
+        2.6,
+        -0.5
+      ],
+      "scale": 0.34
+    },
+    {
+      "id": "hero-character",
+      "kind": "character",
+      "title": "白蓝斗笠侠客（本地玩家）",
+      "glb": null,
+      "fallback": "procedural:character",
+      "version": 1,
+      "license": "依据用户提供 IP 形象特征制作的几何原型，待品牌审核",
+      "usage": "本地玩家与 AI 侠客形象",
+      "requiredAnimations": [
+        "idle",
+        "walk",
+        "talk",
+        "listen",
+        "observe"
+      ]
+    },
+    {
+      "id": "hall-stand",
+      "kind": "prop",
+      "title": "展馆展位",
+      "glb": null,
+      "fallback": "procedural:stand",
+      "version": 1,
+      "license": "程序化生成原型",
+      "usage": "展馆 8 个共享展位"
+    }
+  ]
+}

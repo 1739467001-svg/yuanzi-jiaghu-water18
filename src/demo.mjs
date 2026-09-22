@@ -1,6 +1,6 @@
-import editions from './data/editions.json' with {type:'json'};
+import {allPublishedWorks} from './content/catalog.js';
 import {AGENTS} from './world/config.js';
-export const allWorks=editions.flatMap(e=>e.works);
+export const allWorks=allPublishedWorks();
 export function retrieve(query){
  const synonyms={编程:'效率工具',视频:'内容创作',写作:'内容创作',创业:'电商出海',校园:'智慧学务',理财:'金融投资'};
  const expanded=query+' '+Object.entries(synonyms).filter(([k])=>query.includes(k)).map(([,v])=>v).join(' ');

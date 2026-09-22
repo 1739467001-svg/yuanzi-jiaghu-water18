@@ -11,7 +11,10 @@
     "content:import": "node scripts/import-content.mjs",
     "test:e2e": "node scripts/smoke-browser.mjs",
     "validate:world": "node scripts/validate-world.mjs",
-    "validate:content": "node --test tests/content.test.mjs"
+    "validate:content": "node --test tests/content.test.mjs",
+    "shots": "node scripts/capture-shots.mjs",
+    "bench": "node scripts/bench.mjs",
+    "assets:proof": "node scripts/make-proof-glb.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

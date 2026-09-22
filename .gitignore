@@ -8,3 +8,8 @@ artifacts/
 
 .env.*
 !.env.example
+data/ops-state.json
+data/users.json
+data/sessions.json
+data/users/
+data/usage-ledger.json
