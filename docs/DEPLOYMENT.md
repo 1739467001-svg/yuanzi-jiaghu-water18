@@ -14,7 +14,8 @@
 | --- | --- | --- | --- |
 | 静态演示 | `VITE_BASE_PATH=/Atomic-Jianghu/ VITE_STATIC_DEMO=true npm run build`，产物 `dist/` 托管到任意静态主机或 GitHub Pages | 品牌、小镇、展馆、目录、导览、观展、本地记忆；无内容接口、无模型代理、无运营后台 | 公开演示、评审 |
 | 本地开发 | `npm run dev` | 上述全部 + `/api/content/*` 内容服务 + `/api/chat` 模型代理 + `/admin.html` 运营后台 + 联机演示 | 内部调试 |
-| 联机产品（预览） | `npm run build && npm run preview` | 与开发一致（含 API），但内容服务不热加载 | 小范围试用 |
+| 联机产品 | `npm run build && npm run world` | 单进程：静态资源 + 全部 API + WebSocket 世界服务（跨设备互见与私聊） | 小范围试用/上云 |
+| 开发 | `npm run dev` | 同上 + HMR + 内容热加载 + 运营后台 | 内部调试 |
 
 注意：`preview` 是普通 Node 进程，`server/content.mjs` 的热加载分支会失败并回退到启动时快照——应用导入后需重启 preview。开发态（`npm run dev`）无需重启。
 
@@ -29,6 +30,13 @@
 | `ATOM_OPS_STATE_PATH` | 运营状态文件位置 | `data/ops-state.json` |
 
 不要把密钥放进 `VITE_` 前缀变量（会打进前端包）。
+
+## 已补齐的缺口（相比首版）
+
+1. 身份与鉴权：本地账号体系（scrypt、HttpOnly 会话、来源校验）。
+2. 服务端权威世界：WebSocket 世界服务，跨设备互见、权威移动裁决、点对点私聊。
+3. 持久预算：用量账本 + 每日预算 80%/100% 门禁。
+4. 运营后台权限：/api/admin 要求运营角色，开发态提权 + 审计。
 
 ## 上线前必须完成（P0 缺口）
 

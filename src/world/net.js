@@ -108,3 +108,97 @@ export function createWorldLink({selfId,getIdentity=()=>({name:'同行侠客',co
   leave(){post({t:'bye',id:selfId});clearInterval(timer);try{bc.close();}catch{}},
  };
 }
+
+// ---- WebSocket 传输（服务端权威世界）----
+// 连接参数来自 VITE_WORLD_WS_URL；缺省时与页面同源（开发/单机部署均适用）。
+// 协议见 server/worldServer.mjs：welcome/peer-joined/peer-left/peer-moved/peer-state
+// + 点对点 dm/invite/invite-reply/block。BroadcastChannel 作为同浏览器兜底。
+export function worldWsUrl(env=import.meta.env||{}){
+ if(env.VITE_WORLD_WS_URL)return env.VITE_WORLD_WS_URL;
+ if(typeof location==='undefined')return null;
+ const protocol=location.protocol==='https:'?'wss:':'ws:';
+ const room=new URLSearchParams(location.search).get('room')||'atom-jianghu';
+ return `${protocol}//${location.host}/ws?room=${encodeURIComponent(room)}`;
+}
+export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',color:'#427ab5'}),onEvent,onPeers,onDirect,room='atom-jianghu',url=null,WebSocketImpl=globalThis.WebSocket}={}){
+ if(!WebSocketImpl||!selfId)return null;
+ let socket;
+ try{socket=new WebSocketImpl(url||worldWsUrl());}catch{return null;}
+ const table=new PeerTable((kind,peer)=>onEvent?.({kind,peer}));
+ const outbox=[];
+ let selfServerId=selfId; // 服务端在 welcome 中分配，用于 direct 路由与广播身份
+ const post=msg=>{
+  if(socket.readyState===1){socket.send(JSON.stringify(msg));return;}
+  if(socket.readyState===0){outbox.push(msg);if(outbox.length>20)outbox.shift();}
+ };
+ let lastListJson='';
+ const notify=()=>{const list=table.list();const json=JSON.stringify(list);if(json!==lastListJson){lastListJson=json;onPeers?.(list);}};
+ const onMessage=ev=>{
+  let m;try{m=JSON.parse(ev.data);}catch{return;}
+  if(!m||typeof m!=='object')return;
+  if(m.t==='welcome'){
+   if(m.self?.id)selfServerId=m.self.id;
+   onEvent?.({kind:'identity',id:m.self?.id,name:m.self?.name});
+   for(const peer of (m.peers||[])){
+    const valid=validatePeer({...peer,angle:peer.angle??0,state:peer.state||'自在漫游'});
+    if(valid&&valid.id!==selfId){table.upsert(valid);onEvent?.({kind:'join',peer:valid});}
+   }
+   notify();
+   return;
+  }
+  if(m.t==='peer-joined'){
+   const valid=validatePeer({...m,angle:m.angle??0,state:m.state||'自在漫游'});
+   if(valid&&valid.id!==selfId){table.upsert(valid);onEvent?.({kind:'join',peer:valid});notify();}
+   return;
+  }
+  if(m.t==='peer-left'){if(m.id!==selfId){table.drop(m.id);notify();}return;}
+  if(m.t==='peer-moved'||m.t==='peer-state'){
+   if(m.id===selfServerId)return;
+   const existing=table.peers.get(m.id);
+   if(!existing)return;
+   table.upsert({...existing,x:m.t==='peer-moved'?m.x:existing.x,z:m.t==='peer-moved'?m.z:existing.z,angle:Number.isFinite(m.angle)?m.angle:existing.angle,state:m.state||existing.state});
+   notify();
+   return;
+  }
+  if(m.t==='move-accepted'){onEvent?.({kind:'move-accepted',x:m.x,z:m.z,path:m.path||[]});return;}
+  if(m.t==='move-rejected'){onEvent?.({kind:'move-rejected',reason:m.reason});return;}
+  if(m.t==='direct-undelivered'){onEvent?.({kind:'undelivered',to:m.to});return;}
+  if(['dm','invite','invite-reply','block'].includes(m.t)){
+   if(m.to!==selfServerId)return;
+   const direct=validateDirect(m);
+   if(direct&&direct.from!==selfServerId)onDirect?.(direct);
+  }
+ };
+ socket.addEventListener('message',onMessage);
+ socket.addEventListener('open',()=>{
+  const{name,color}=getIdentity();
+  post({t:'hello',name,color});
+  while(outbox.length)post(outbox.shift());
+ });
+ socket.addEventListener('close',()=>{table.peers.clear();notify();});
+ return {
+  kind:'ws',
+  socket,
+  publish(snapshot){
+   const{color}=getIdentity();
+   // 位置意图提交给服务端校验；本地先不动，最终位置以 move-accepted 为准。
+   post({t:'move',id:selfServerId,x:snapshot.x,z:snapshot.z,state:snapshot.state,angle:snapshot.angle,color});
+  },
+  sendDM(to,body){const msg={t:'dm',from:selfServerId,to,id:dmId(),body:dmBody(body),time:Date.now()};post(msg);return msg;},
+  sendInvite(to){const msg={t:'invite',from:selfServerId,to,session:dmId(),time:Date.now()};post(msg);return msg;},
+  sendInviteReply(to,session,accept,reason=''){const msg={t:'invite-reply',from:selfId,to,session,accept:!!accept,reason:String(reason).slice(0,60),time:Date.now()};post(msg);return msg;},
+  sendBlock(to){const msg={t:'block',from:selfId,to,time:Date.now()};post(msg);return msg;},
+  peers(){return table.list();},
+  leave(){try{post({t:'bye'});socket.close();}catch{}},
+ };
+}
+// 传输选择：显式 WS > 同源 WS 可用 > BroadcastChannel（同浏览器演示）。
+export function createTransport({wsUrl=null,prefer='auto',...options}={}){
+ if(prefer==='broadcast')return createWorldLink(options);
+ if(prefer==='ws')return createWsWorldLink({...options,url:wsUrl});
+ if(typeof WebSocket!=='undefined'){
+  const ws=createWsWorldLink({...options,url:wsUrl});
+  if(ws)return ws;
+ }
+ return createWorldLink(options);
+}

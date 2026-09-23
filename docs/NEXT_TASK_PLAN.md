@@ -115,6 +115,17 @@
 - server/usageLedger.mjs：requestId 去重、预留/结算、每日预算 80%/100% 门禁、/api/usage 查询、落盘持久化。
 - 文档：DEPLOYMENT.md 已更新上线前缺口（身份、服务端权威、预算、后台权限中的前两项已落地）。
 
+## 服务端权威世界轮进展（2026-09-23）
+
+本轮完成（验证记录见 docs/VERIFICATION.md）：
+
+- server/worldServer.mjs：WebSocket 世界服务（房间、加入/离开、心跳超时、容量、权威移动裁决、点对点私聊路由）。
+- server/world.mjs：单进程部署入口（HTTP + WS 同端口 + 全部 API + 静态资源），npm run world。
+- src/world/net.js：createTransport 传输抽象（WS 优先，BroadcastChannel 兜底）；WS 以服务端 id 路由；连接前消息队列。
+- vite.config.js：dev/preview 挂载 /ws；HMR 独立端口 5174。
+- 文档：docs/WORLD_SERVER.md（协议、权威规则、隐私边界、运行方式）。
+- 双设备（隔离 context）联调通过：互见、权威移动、跨设备私聊。
+
 下一步（按 PRD v1.0 实施路线）：
 
 - G0 收尾：双账号鉴权与位置原型、固定测试基准；再评估 G1—G3。

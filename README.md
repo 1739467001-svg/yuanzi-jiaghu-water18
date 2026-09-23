@@ -49,7 +49,7 @@ npm run preview
 - 手机布局、键盘对话框焦点约束、无 WebGL 时的作品目录入口。
 - 游历手札“侠客见闻”：AI 侠客的公开行程与社交时间线（不含私人聊天内容）。
 - 开发态运营后台 `/admin.html`（仅 `npm run dev`/`preview`）：目录（草稿/送审/发布/撤回）、导入任务（差异预览→应用，微信号与二维码剔除并计数）、发布版本（快照与回滚）、审计流水；覆盖、版本与审计持久化在 `data/ops-state.json`，重启不丢失；导入写 `editions.json` 并复制媒体，开发态内容服务随后热加载。
-- 联机演示（同浏览器多标签）：BroadcastChannel 组成房间，两个标签页互相看到真人化身移动，名帖与衣带色实时同步，加入/离开进入“江湖此刻”。
+- 联机（服务端权威）：WebSocket 世界服务（/ws），两个设备/浏览器互相看到真人化身移动，加入/离开进入“江湖此刻”；可走区域与最终位置由服务端裁决，客户端只提交意图。静态演示自动回退到同浏览器 BroadcastChannel。
 - 真人一对一私聊：点击真人名帖发起邀请，对方接受后开始私人会话；支持婉拒（含 30 秒冷却）、忙碌自动婉拒、30 秒邀请超时、结束交谈与屏蔽；正文只存在于双方面板，公开动态只记录“开始私下交流”的事实，世界快照与调试接口不出现正文（有测试保证）。账号体系与服务端权威尚未接入。
 - 性能：`npm run bench` 固定路线基准（首交互、帧率分位、绘制调用）；运行时可开“性能指示器”查看帧率；连续 3 秒低于 30 FPS 自动降级（阴影→粒子→像素比），`?degrade=1` 可预览降级观感。基线见 docs/PERFORMANCE.md。
 
@@ -106,6 +106,8 @@ server/authApi.mjs        /api/auth 注册、登录、登出、当前用户
 server/userStore.mjs      按 userId 的云端收藏与记忆（版本冲突保护、TTL）
 server/meApi.mjs          /api/me 云端读写与本机→云端迁移
 server/usageLedger.mjs    模型调用账本与每日预算（80%/100% 门禁）
+server/worldServer.mjs   WebSocket 世界服务（房间/权威裁决/私聊路由）
+server/world.mjs         单进程部署入口（HTTP + WS + API + 静态资源）
 server/admin.mjs           开发态运营接口：草稿/发布/撤回/审计
 server/opsStore.mjs        发布覆盖与审计流水（仅内存）
 admin.html, src/admin.jsx  开发态运营后台页面（目录/导入/版本/审计）

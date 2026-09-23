@@ -14,13 +14,15 @@
     "validate:content": "node --test tests/content.test.mjs",
     "shots": "node scripts/capture-shots.mjs",
     "bench": "node scripts/bench.mjs",
-    "assets:proof": "node scripts/make-proof-glb.mjs"
+    "assets:proof": "node scripts/make-proof-glb.mjs",
+    "world": "node server/world.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

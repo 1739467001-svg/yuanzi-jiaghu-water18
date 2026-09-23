@@ -23,7 +23,7 @@ try{
  const link=page.url();await page.reload();await page.getByRole('dialog',{name:'StoryMap'}).waitFor();assert.equal(page.url(),link);
  await page.getByRole('dialog',{name:'StoryMap'}).getByRole('button',{name:'关闭窗口'}).click();await page.getByRole('button',{name:'关闭窗口'}).click();
  await page.getByRole('button',{name:'返回小镇',exact:true}).click();
- await page.getByRole('button',{name:'和阿原聊聊'}).click();await page.getByRole('checkbox').check();
+ await page.getByRole('button',{name:'和阿原聊聊'}).click();await page.locator('.chat-dialog .memory-consent input').check();
  await page.getByRole('textbox',{name:'聊天消息'}).fill('我喜欢内容创作');await page.getByRole('button',{name:'发送消息',exact:true}).click();
  await page.waitForFunction(()=>document.querySelectorAll('.chat-work').length>0);
  await page.getByRole('button',{name:'你还记得我吗？',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.chat-messages').textContent.includes('在你允许保存'));
@@ -47,13 +47,14 @@ try{
   assert.match(await degraded.locator('.version-line').textContent(),/本地快照降级/);
  }
  // 联机演示：同一上下文的两个标签页应互相看到真人化身，关闭后清理。
+ const roomName='e2e-'+Date.now().toString(36);
  const room=await browser.newContext({viewport:{width:1280,height:800}});
  const seatA=await room.newPage();const seatB=await room.newPage();
  seatA.on('pageerror',e=>errors.push('netA:'+e.message));seatB.on('pageerror',e=>errors.push('netB:'+e.message));
- await seatA.goto(base);await seatB.goto(base);await seatA.waitForSelector('.scene-pin.player');await seatB.waitForSelector('.scene-pin.player');
+ await seatA.goto(base+'/?room='+roomName);await seatB.goto(base+'/?room='+roomName);await seatA.waitForSelector('.scene-pin.player');await seatB.waitForSelector('.scene-pin.player');
  await seatA.waitForFunction(()=>document.querySelectorAll('.scene-pin.peer').length>0,null,{timeout:8000});
- assert.match(await seatA.locator('.world-status').textContent(),/访客 · 联机演示 1 人同行/);
- assert.match(await seatB.locator('.world-status').textContent(),/访客 · 联机演示 1 人同行/);
+ assert.match(await seatA.locator('.world-status').textContent(),/联机演示 1 人同行|访客 · 联机演示 1 人同行/);
+ assert.match(await seatB.locator('.world-status').textContent(),/联机演示 1 人同行|访客 · 联机演示 1 人同行/);
  assert.match(await seatA.locator('.scene-pin.peer').first().textContent(),/真人/);
  assert.match(await seatA.title(),/^\(1\)/);
  await seatA.screenshot({path:'artifacts/net-two-tabs.png'});

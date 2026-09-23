@@ -2,7 +2,7 @@ import {useState,useMemo,useRef,useEffect,useCallback} from 'react';
 import {ArrowUpRight,ArrowRight,Compass,BookOpen,MessageCircle,Sun,Moon,Settings2,Volume2,VolumeX,Plus,Minus,LocateFixed,RotateCcw,ChevronRight,ChevronLeft,Search,Bookmark,MapPin,Users,Send,Sparkles,Leaf,Footprints,Check,Trash2,SlidersHorizontal,ExternalLink,PanelRightClose,PanelRightOpen,X,Clock,Sparkle} from 'lucide-react';
 import World from './world/World.jsx';
 import {WorldEngine} from './world/engine.js';
-import {createWorldLink} from './world/net.js';
+import {createTransport} from './world/net.js';
 import {PLACES,AGENTS,THEMES,MAP_VERSION} from './world/config.js';
 import {demoReply} from './demo.mjs';
 import {useCatalog} from './content/useCatalog.js';
@@ -28,6 +28,7 @@ export default function App(){
  // 私聊（联机演示）：点对点邀请→接受→会话；正文只存在于双方面板，公开事件流只记录“开始私下交流”。
  const [dms,setDms]=useState({}),[dmPeer,setDmPeer]=useState(null),[dmDraft,setDmDraft]=useState(''),[incoming,setIncoming]=useState(null);
  const [memoryChoice,setMemoryChoice]=useState(false);
+ const [netId,setNetId]=useState(null);
  const [account,setAccount]=useState(null),[authOpen,setAuthOpen]=useState(false),[authMode,setAuthMode]=useState('login'),[authDraft,setAuthDraft]=useState({nickname:'',password:''}),[authBusy,setAuthBusy]=useState(false),[cloudState,setCloudState]=useState(null),[migrateOpen,setMigrateOpen]=useState(false);
  const dmCooldown=useRef({}),blockedRef=useRef(new Set()),dmTimers=useRef({});
  const dmPatch=(id,patch)=>setDms(v=>({...v,[id]:{status:'idle',messages:[],...(v[id]||{}),...patch}}));
@@ -108,19 +109,34 @@ export default function App(){
  },[dms,dmPeer,activeDmPeer,peers]);
  directRef.current=onDirectMessage;
  const netEvent=useCallback((kind,peer,text)=>{const t=text||(kind==='join'?`${peer.name}进入江湖（真人）`:`${peer.name}离开了江湖`);const e={id:`net-${kind}-${peer.id}-${Date.now()}`,text:t,kind:kind==='join'?'welcome':kind==='leave'?'walk':'chat',time:Date.now()};setEvents(p=>[e,...p].slice(0,12));setTimeline(p=>[e,...p].slice(0,100));},[]);
+ const linkEventRef=useRef(null),linkPeersRef=useRef(null);
+ linkEventRef.current=({kind,peer,x,z,path})=>{
+  if(kind==='identity'&&peer&&peer.id){setNetId(peer.id);return;}
+  if(kind==='move-accepted'){engine.player.x=x;engine.player.z=z;engine.player.path=(path||[]).map(p=>[p[0],p[1]]);return;}
+  if(kind==='move-rejected'){notice('那里走不通，换条路吧');return;}
+  if(peer&&peer.id)netEvent(kind,peer);
+ };
+ linkPeersRef.current=setPeers;
  useEffect(()=>{document.title=`${peers.length?`(${peers.length}) `:''}原子江湖 · 与同路人，共建新江湖`;},[peers.length]);
  const [events,setEvents]=useState(initialEvents),engine=useMemo(()=>new WorldEngine(e=>{setEvents(p=>[e,...p].slice(0,12));setTimeline(p=>[e,...p].slice(0,100));},()=>zoneRef.current),[]),[agents,setAgents]=useState(()=>engine.snapshot());
  const [theme,setTheme]=useSaved('theme','jianghu'),[night,setNight]=useSaved('night',false),[nickname,setNickname]=useSaved('nickname','初来江湖的你'),[playerColor,setPlayerColor]=useSaved('color','#427ab5');
  useEffect(()=>{identityRef.current={name:nickname==='初来江湖的你'?'少侠':nickname,color:playerColor};},[nickname,playerColor]);
  useEffect(()=>{
-  const link=createWorldLink({selfId,getIdentity:()=>identityRef.current,onEvent:({kind,peer})=>netEvent(kind,peer),onPeers:setPeers,onDirect:msg=>directRef.current?.(msg)});
+  // 传输在会话内只建一次；所有回调经 ref 读取最新状态，避免重连。
+  const link=createTransport({
+   selfId,
+   getIdentity:()=>identityRef.current,
+   onEvent:({kind,peer,x,z,path})=>linkEventRef.current?.({kind,peer,x,z,path}),
+   onPeers:list=>linkPeersRef.current?.(list),
+   onDirect:msg=>directRef.current?.(msg),
+  });
   linkRef.current=link;
   if(!link)return()=>{};
-  const timer=setInterval(()=>link.publish({...engine.player,id:selfId,name:identityRef.current.name,state:activeDmRef.current?'私人交谈中':engine.player.state}),180);
+  const timer=setInterval(()=>link.publish({...engine.player,id:netId||selfId,name:identityRef.current.name,state:activeDmRef.current?'私人交谈中':engine.player.state}),180);
   const onHide=()=>link.leave();
   window.addEventListener('pagehide',onHide);
   return()=>{clearInterval(timer);window.removeEventListener('pagehide',onHide);link.leave();linkRef.current=null;};
- },[selfId,engine,netEvent]);
+ },[selfId,engine]);
  const [bookmarks,setBookmarks]=useSaved('bookmarks',[]),[memories,setMemories]=useSaved('memories',[]),[remember,setRemember]=useSaved('remember',false),[visits,setVisits]=useSaved('visits',[]);
  const [panel,setPanel]=useState(null),[location,setLocation]=useState('town'),[placeId,setPlaceId]=useState(null),[chatId,setChatId]=useState(null),[editionId,setEditionId]=useState('funskills'),[track,setTrack]=useState('全部'),[search,setSearch]=useState(''),[workId,setWorkId]=useState(null),[journalTab,setJournalTab]=useState('收藏作品'),[toast,setToast]=useState(''),[showLabels,setShowLabels]=useState(true),[rail,setRail]=useState(true),[mode,setMode]=useState('demo'),[draft,setDraft]=useState(''),[messages,setMessages]=useState({}),[sending,setSending]=useState(false),[phase,setPhase]=useState(()=>engine.phase().name),[guideOpen,setGuideOpen]=useState(false),[guideDraft,setGuideDraft]=useState(''),[guideMessages,setGuideMessages]=useState([]),[guideSending,setGuideSending]=useState(false),[perf,setPerf]=useState(null),[showPerf,setShowPerf]=useSaved('perf',false);
  const catalogState=useCatalog({staticDemo}),exhibition=catalogState.exhibition?.config||SHARED_EXHIBITION;
