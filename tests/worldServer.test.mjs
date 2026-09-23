@@ -40,3 +40,16 @@ test('server clamps targets outside the map into walkable space', () => {
  assert.ok(far,'极端目标也得到合法落点');
  assert.ok(far.x>=-18&&far.z<=14);
 });
+
+test('zone entries match the town config and only allow declared crossings', async () => {
+ const {ZONE_ENTRIES}=await import('../server/worldServer.mjs');
+ assert.ok(ZONE_ENTRIES.town,'主镇必须存在');
+ assert.ok(ZONE_ENTRIES.hall,'展馆必须存在');
+ // 入口与 src/world/config.js 的 PLACES 一致（hall entry [0,-4]；hall 回 town 的落点 [0,7]）。
+ assert.deepEqual(ZONE_ENTRIES.town.entries.hall,[0,-4]);
+ assert.deepEqual(ZONE_ENTRIES.hall.entries.town,[0,7]);
+ for(const zone of Object.values(ZONE_ENTRIES)){
+  assert.ok(Array.isArray(zone.spawn)&&zone.spawn.length===2,'每个区域必须有出生点');
+  assert.ok(zone.spawn.every(Number.isFinite),'出生点坐标必须有限');
+ }
+});

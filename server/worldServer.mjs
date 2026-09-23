@@ -12,7 +12,18 @@ const HEARTBEAT_MS=15000;
 const PEER_TIMEOUT_MS=45000;
 const MAX_ROOMS=50;
 const ROOM_CAPACITY=20; // PRD 15.1 设计目标：20 位真人 + 8 位 AI
+// 区域与受控入口（PRD 7.3）：跨区域必须经入口转换，校验失败保留原区域。
+export const ZONE_ENTRIES={
+ town:{entries:{hall:[0,-4]},spawn:[-3,1]},
+ hall:{entries:{town:[0,7]},spawn:[0,7]},
+};
 const rooms=new Map();
+// 断线重连补偿（PRD 15.4）：按 房间+身份 记住最近有效位置与区域，短时内重连则恢复。
+const lastPositions=new Map();
+const RESUME_TTL=120000;
+const resumeKey=(roomId,id)=>roomId+'/'+id;
+const rememberPosition=(peer)=>{lastPositions.set(resumeKey(peer.roomId,peer.id),{x:peer.x,z:peer.z,angle:peer.angle,zone:peer.zone||'town',time:Date.now()});};
+const recallPosition=(roomId,id)=>{const key=resumeKey(roomId,id);const saved=lastPositions.get(key);if(!saved)return null;if(Date.now()-saved.time>RESUME_TTL){lastPositions.delete(key);return null;}return saved;};
 const roomOf=id=>rooms.get(id);
 const ensureRoom=id=>{
  if(!rooms.has(id)){
@@ -60,13 +71,14 @@ function handleMessage(peer,raw){
    if(Number.isFinite(message.angle))peer.angle=message.angle;
    const resolved=resolveMove(peer,message);
    if(!resolved)return sendTo(peer,{t:'move-rejected',reason:'目标不可通行'});
-   peer.path=resolved.path;peer.x=resolved.x;peer.z=resolved.z;
+   peer.path=resolved.path;peer.x=resolved.x;peer.z=resolved.z;rememberPosition(peer);
    peer.socket.send(JSON.stringify({t:'move-accepted',x:peer.x,z:peer.z,path:peer.path}));
    broadcast(room,{t:'peer-moved',id:peer.id,x:peer.x,z:peer.z,angle:peer.angle,state:peer.state});
    break;
   }
   case 'state':{
    // 轻量状态同步（状态文案/朝向）：不做位置校验，位置只认 move。
+   rememberPosition(peer);
    if(typeof message.state==='string')peer.state=message.state.slice(0,20);
    if(Number.isFinite(message.angle))peer.angle=message.angle;
    broadcast(room,{t:'peer-state',id:peer.id,state:peer.state,angle:peer.angle});
@@ -91,6 +103,19 @@ function handleMessage(peer,raw){
    sendTo(target,forward);
    break;
   }
+  case 'zone':{
+   // 受控区域转换：校验入口 → 取消冲突会话 → 服务端更新区域与落点 → 广播。
+   const target=ZONE_ENTRIES[String(message.zone||'')];
+   if(!target)return sendTo(peer,{t:'zone-rejected',reason:'未知区域'});
+   const entry=(ZONE_ENTRIES[peer.zone]||{entries:{}}).entries[message.zone];
+   if(!entry)return sendTo(peer,{t:'zone-rejected',reason:'当前区域没有通往该处的入口'});
+   if(Math.hypot(peer.x-entry[0],peer.z-entry[1])>6)return sendTo(peer,{t:'zone-rejected',reason:'距离入口太远，请先走到入口'});
+   peer.zone=message.zone;peer.path=[];peer.x=target.spawn[0];peer.z=target.spawn[1];
+   rememberPosition(peer);
+   broadcast(room,{t:'peer-zone',id:peer.id,zone:peer.zone,x:peer.x,z:peer.z});
+   sendTo(peer,{t:'zone-accepted',zone:peer.zone,x:peer.x,z:peer.z});
+   break;
+  }
   case 'ping':sendTo(peer,{t:'pong',time:Date.now()});break;
   default:break;
  }
@@ -103,16 +128,19 @@ export function attachWorldServer(server,{path='/ws'}={}){
   const roomId=(url.searchParams.get('room')||'atom-jianghu').slice(0,40);
   const token=url.searchParams.get('token')||readCookie(request.headers.cookie||'');
   const user=token?userForToken(token):null;
-  const peerId=user?user.id:'guest_'+Math.random().toString(36).slice(2,10);
+  // 游客身份：优先采用客户端提供的稳定 id（同标签页刷新不变），保证断线重连能恢复位置。
+ const clientId=url.searchParams.get('id');
+ const peerId=user?user.id:(typeof clientId==='string'&&/^[A-Za-z0-9_-]{4,40}$/.test(clientId)?clientId:'guest_'+Math.random().toString(36).slice(2,10));
   const room=ensureRoom(roomId);
   if(!room){socket.close(1013,'房间已满');return;}
   if(room.peers.size>=ROOM_CAPACITY){socket.close(1013,'房间已满，请稍后再试');return;}
   const name=(url.searchParams.get('name')||user?.nickname||'同行侠客').slice(0,20);
   const color=/^#[0-9a-f]{6}$/i.test(url.searchParams.get('color')||'')?url.searchParams.get('color'):'#427ab5';
-  const peer={id:peerId,name,color,roomId,x:-3,z:1,angle:0,state:'自在漫游',path:[],socket,userId:user?.id||null,lastSeen:Date.now()};
+  const resumed=recallPosition(roomId,peerId);
+ const peer={id:peerId,name,color,roomId,x:resumed?resumed.x:-3,z:resumed?resumed.z:1,angle:resumed?resumed.angle:0,zone:resumed?resumed.zone:'town',state:resumed?'重回江湖':'自在漫游',path:[],socket,userId:user?.id||null,lastSeen:Date.now()};
   room.peers.set(peer.id,peer);
   socket.isAlive=true;
-  sendTo(peer,{t:'welcome',self:{id:peer.id,name:peer.name,color:peer.color},room:roomId,capacity:ROOM_CAPACITY,peers:publicSnapshot(room).filter(p=>p.id!==peer.id),walkable:{minX:-18,maxX:18,minZ:-14,maxZ:14}});
+  sendTo(peer,{t:'welcome',self:{id:peer.id,name:peer.name,color:peer.color,zone:peer.zone},resumed:!!resumed,room:roomId,capacity:ROOM_CAPACITY,peers:publicSnapshot(room).filter(p=>p.id!==peer.id),walkable:{minX:-18,maxX:18,minZ:-14,maxZ:14}});
   broadcast(room,{t:'peer-joined',id:peer.id,name:peer.name,color:peer.color,x:peer.x,z:peer.z,angle:peer.angle,state:peer.state},peer.id);
   socket.on('message',raw=>{peer.lastSeen=Date.now();handleMessage(peer,String(raw));});
   socket.on('pong',()=>{socket.isAlive=true;peer.lastSeen=Date.now();});

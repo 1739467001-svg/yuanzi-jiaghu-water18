@@ -52,8 +52,18 @@ function serveStatic(req,res){
   res.end(body);
  }catch{res.statusCode=404;res.end('not found');}
 }
-const {attachWorldServer}=await import('./worldServer.mjs');
+const {attachWorldServer,worldServerState}=await import('./worldServer.mjs');
 attachWorldServer(server,{path:'/ws'});
+// 运维观测：房间、在线人数、容量、运行时长（不含任何私人内容）。
+// 以中间件形式注册在 chat 之前，避免被 /api/ 前缀守卫拦截。
+middlewares.unshift((req,res,next)=>{
+ if(!req.url||!req.url.startsWith('/api/world'))return next();
+ const url=new URL(req.url,'http://localhost');
+ if(url.pathname!=='/api/world'||req.method!=='GET'){res.statusCode=404;res.setHeader('Content-Type','application/json');res.end(JSON.stringify({error:'接口不存在'}));return;}
+ const state=worldServerState();
+ res.statusCode=200;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');
+ res.end(JSON.stringify({ok:true,uptime:Math.round(process.uptime()),rooms:state.rooms,capacity:state.capacity,node:process.version}));
+});
 server.listen(port,host,()=>{
  console.log(`原子江湖世界服务已启动: http://${host}:${port}  (WebSocket: /ws)`);
 });

@@ -118,7 +118,10 @@ export function worldWsUrl(env=import.meta.env||{}){
  if(typeof location==='undefined')return null;
  const protocol=location.protocol==='https:'?'wss:':'ws:';
  const room=new URLSearchParams(location.search).get('room')||'atom-jianghu';
- return `${protocol}//${location.host}/ws?room=${encodeURIComponent(room)}`;
+ let stableId='';
+ try{stableId=sessionStorage.getItem('atom-jianghu:player-id')||'';}catch{}
+ const idParam=stableId?`&id=${encodeURIComponent(stableId)}`:'';
+ return `${protocol}//${location.host}/ws?room=${encodeURIComponent(room)}${idParam}`;
 }
 export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',color:'#427ab5'}),onEvent,onPeers,onDirect,room='atom-jianghu',url=null,WebSocketImpl=globalThis.WebSocket}={}){
  if(!WebSocketImpl||!selfId)return null;
@@ -127,6 +130,7 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
  const table=new PeerTable((kind,peer)=>onEvent?.({kind,peer}));
  const outbox=[];
  let selfServerId=selfId; // 服务端在 welcome 中分配，用于 direct 路由与广播身份
+ let selfZone='town';
  const post=msg=>{
   if(socket.readyState===1){socket.send(JSON.stringify(msg));return;}
   if(socket.readyState===0){outbox.push(msg);if(outbox.length>20)outbox.shift();}
@@ -138,6 +142,8 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
   if(!m||typeof m!=='object')return;
   if(m.t==='welcome'){
    if(m.self?.id)selfServerId=m.self.id;
+   if(m.self?.zone)selfZone=m.self.zone;
+   if(m.resumed)onEvent?.({kind:'resumed',peer:{id:m.self?.id,zone:m.self?.zone},x:m.self?.x,z:m.self?.z});
    onEvent?.({kind:'identity',id:m.self?.id,name:m.self?.name});
    for(const peer of (m.peers||[])){
     const valid=validatePeer({...peer,angle:peer.angle??0,state:peer.state||'自在漫游'});
@@ -148,10 +154,19 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
   }
   if(m.t==='peer-joined'){
    const valid=validatePeer({...m,angle:m.angle??0,state:m.state||'自在漫游'});
-   if(valid&&valid.id!==selfId){table.upsert(valid);onEvent?.({kind:'join',peer:valid});notify();}
+   if(valid&&valid.id!==selfServerId){table.upsert(valid);onEvent?.({kind:'join',peer:valid});notify();}
    return;
   }
-  if(m.t==='peer-left'){if(m.id!==selfId){table.drop(m.id);notify();}return;}
+  if(m.t==='peer-left'){if(m.id!==selfServerId){table.drop(m.id);notify();}return;}
+  if(m.t==='peer-zone'){
+   const existing=table.peers.get(m.id);
+   if(existing)table.upsert({...existing,zone:m.zone,x:m.x,z:m.z});
+   onEvent?.({kind:'peer-zone',peer:{id:m.id,zone:m.zone}});
+   notify();
+   return;
+  }
+  if(m.t==='zone-accepted'){selfZone=m.zone;onEvent?.({kind:'zone-accepted',peer:{id:selfServerId,zone:m.zone},x:m.x,z:m.z});return;}
+  if(m.t==='zone-rejected'){onEvent?.({kind:'zone-rejected',peer:{id:selfServerId,reason:m.reason}});return;}
   if(m.t==='peer-moved'||m.t==='peer-state'){
    if(m.id===selfServerId)return;
    const existing=table.peers.get(m.id);
@@ -186,8 +201,10 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
   },
   sendDM(to,body){const msg={t:'dm',from:selfServerId,to,id:dmId(),body:dmBody(body),time:Date.now()};post(msg);return msg;},
   sendInvite(to){const msg={t:'invite',from:selfServerId,to,session:dmId(),time:Date.now()};post(msg);return msg;},
-  sendInviteReply(to,session,accept,reason=''){const msg={t:'invite-reply',from:selfId,to,session,accept:!!accept,reason:String(reason).slice(0,60),time:Date.now()};post(msg);return msg;},
-  sendBlock(to){const msg={t:'block',from:selfId,to,time:Date.now()};post(msg);return msg;},
+  sendInviteReply(to,session,accept,reason=''){const msg={t:'invite-reply',from:selfServerId,to,session,accept:!!accept,reason:String(reason).slice(0,60),time:Date.now()};post(msg);return msg;},
+  sendBlock(to){const msg={t:'block',from:selfServerId,to,time:Date.now()};post(msg);return msg;},
+  requestZone(zone){const msg={t:'zone',zone:String(zone||''),time:Date.now()};post(msg);return msg;},
+  zone(){return selfZone;},
   peers(){return table.list();},
   leave(){try{post({t:'bye'});socket.close();}catch{}},
  };

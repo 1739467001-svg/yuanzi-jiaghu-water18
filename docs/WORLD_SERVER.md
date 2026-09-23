@@ -23,22 +23,29 @@
 | `peer-moved` / `peer-state` | 位置/状态广播 |
 | `move-accepted` / `move-rejected` | 移动意图的裁决结果 |
 | `direct-undelivered` | 私聊目标不在线 |
+| `zone-accepted` / `zone-rejected` / `peer-zone` | 区域转换裁决与广播 |
 | `dm` / `invite` / `invite-reply` / `block` | 点对点私聊与邀请 |
 
-客户端 → 服务端：`move`（目标点）、`state`（状态文案/朝向）、`dm`/`invite`/`invite-reply`/`block`、`ping`。
+客户端 → 服务端：`move`（目标点）、`state`（状态文案/朝向）、`zone`（目标区域）、`dm`/`invite`/`invite-reply`/`block`、`ping`。
 
 ## 权威规则（PRD 7.2）
 
 - 可走区域、目标有效性与最终位置由**服务端**决定：客户端只提交意图，服务端用同一份网格定义（`walkable`/`findPath`）计算路径与落点，非法目标拒绝，地图外目标就近吸附到可走点。
 - 客户端插值不改变权限：收到 `move-accepted` 后才纠正本地位置。
 - 单人同房间只受容量限制（默认 20，PRD 15.1 设计目标）；满员返回 1013。
+- 受控区域转换（PRD 7.3）：`town` ↔ `hall` 只能经声明入口切换；服务端校验入口存在与距离（≤6 米），通过后取消冲突会话、更新区域与落点并广播；失败保留原区域并告知原因。
 - 心跳 15 秒、45 秒无消息视为掉线并清理，房间空了即回收（上限 50 个房间）。
+- 断线重连补偿（PRD 15.4）：按“房间 + 稳定身份”记住最近有效位置与区域（TTL 120 秒）；游客使用会话内稳定 id（sessionStorage），登录用户使用账号 id；重连时 `welcome.resumed` 为 true 并带区域，客户端恢复到该区域。
 
 ## 隐私边界
 
 - 私聊与邀请只在收发双方之间路由，不进入房间广播，也不写世界快照。
 - 授权记忆（发送方开启时）由服务端落到发送方账号下，`agentId` 记为 `peer:<对方id>`。
 - 未登录也可以进世界（`guest_` 前缀身份）；登录后使用账号 id，收藏/记忆可跨设备。
+
+## 观测
+
+`GET /api/world`（仅单进程 `npm run world` 形态）返回房间列表、在线人数、容量与运行时长，不含任何私人内容。
 
 ## 已知边界
 
