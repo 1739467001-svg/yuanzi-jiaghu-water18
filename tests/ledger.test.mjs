@@ -63,3 +63,22 @@ test('ledger persists to disk and survives a fresh module read', async () => {
  assert.ok(onDisk.days[today],'按日分桶');
  assert.equal(onDisk.days[today].requests.length,1);
 });
+
+test('pricing converts tokens to cost and falls back to token units', async () => {
+ const {priceConfig,costOf,budgetState,reserve,settle}=await ledgerForTest();
+ delete process.env.ATOM_LLM_PRICE_IN;delete process.env.ATOM_LLM_PRICE_OUT;
+ assert.equal(priceConfig(),null,'未配置单价时返回 null');
+ assert.equal(costOf({tokensIn:1000,tokensOut:500}),1.5,'退化口径：每 1K token 计 1 单位');
+ process.env.ATOM_LLM_PRICE_IN='0.01';process.env.ATOM_LLM_PRICE_OUT='0.03';
+ assert.deepEqual(priceConfig(),{in:0.01,out:0.03});
+ assert.equal(costOf({tokensIn:1000,tokensOut:1000}),0.04,'金额口径：输入 0.01 + 输出 0.03');
+ reserve('p1',0.01);
+ settle('p1',{model:'demo-model',tokensIn:1000,tokensOut:1000,status:'ok'});
+ const state=budgetState(100);
+ assert.ok(Math.abs(state.spent-0.04)<1e-9,'结算后按单价计入');
+ assert.equal(state.unit,'currency');
+ // 失败调用不计成本。
+ settle('p1',{status:'failed'});
+ assert.equal(budgetState(100).spent,0,'失败不计费');
+ delete process.env.ATOM_LLM_PRICE_IN;delete process.env.ATOM_LLM_PRICE_OUT;
+});

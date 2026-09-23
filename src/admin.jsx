@@ -2,7 +2,7 @@ import {useEffect,useState,useCallback} from 'react';
 import {createRoot} from 'react-dom/client';
 const BADGE={已发布:'pub',草稿:'draft',待审核:'review',已撤回:'withdrawn'};
 const STATUS_ACTIONS=[['已发布','发布','primary'],['待审核','送审',''],['草稿','存为草稿',''],['已撤回','撤回','danger']];
-const TABS=['目录','导入','版本','审计'];
+const TABS=['目录','导入','版本','审计','用量'];
 async function api(path,body){
  const r=await fetch(path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
  const d=await r.json().catch(()=>({}));
@@ -13,6 +13,8 @@ function Admin(){
  const [state,setState]=useState(null),[toast,setToast]=useState(''),[tab,setTab]=useState('目录'),[openEdition,setOpenEdition]=useState(null),[error,setError]=useState('');
  const [plan,setPlan]=useState(null),[planning,setPlanning]=useState(false),[applying,setApplying]=useState(false),[label,setLabel]=useState('');
  const [auth,setAuth]=useState(null),[loginDraft,setLoginDraft]=useState({nickname:'',password:''}),[loginBusy,setLoginBusy]=useState(false),[loginError,setLoginError]=useState(''),[loginMode,setLoginMode]=useState('login');
+ const [usage,setUsage]=useState(null);
+ const loadUsage=useCallback(async()=>{try{setUsage(await api('/api/usage'));}catch(e){setToast(e.message);}},[]);
  const canOperate=!!(auth?.user&&(auth.user.role==='operator'||auth.user.role==='admin'));
  const reload=useCallback(async()=>{
   try{setAuth(await (await fetch('/api/auth/me')).json());}catch{}
@@ -20,6 +22,7 @@ function Admin(){
   catch(e){if(!/登录|权限/.test(e.message))setError(e.message+'——本页只在开发服务器（npm run dev）下可用，静态构建不包含运营接口。');}
  },[]);
  useEffect(()=>{reload();},[reload]);
+ useEffect(()=>{if(tab==='用量')loadUsage();},[tab,loadUsage]);
  useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(''),3000);return()=>clearTimeout(t);},[toast]);
  async function doLogin(){
   setLoginBusy(true);setLoginError('');
@@ -98,6 +101,17 @@ function Admin(){
    </div>)}
   </section>}
 
+  {tab==='用量'&&<section className="edition">
+   <header><h2>模型用量与预算</h2><span className="badge" style={{background:'#eef0e6',color:'#6b7e65'}}>{usage?.budget?.unit==='currency'?'金额口径':'token 口径（未配置单价）'}</span></header>
+   <p className="meta">按日统计；达到每日预算 80% 降级、100% 暂停新模型调用（看展与检索不受影响）。单价由 ATOM_LLM_PRICE_IN / ATOM_LLM_PRICE_OUT 配置，与 ATOM_DAILY_BUDGET 同币种。</p>
+   <div className="usage-grid">
+    <div className="usage-card"><small>今日消耗</small><strong>{usage?.budget?.spent??'—'}</strong><span>上限 {usage?.budget?.limit||'未设置'}</span></div>
+    <div className="usage-card"><small>预算水位</small><strong>{usage?.budget?.state==='exceeded'?'已暂停':usage?.budget?.state==='throttled'?'降级中':usage?.budget?.state==='unlimited'?'无上限':'正常'}</strong><span>{Math.round((usage?.budget?.ratio||0)*100)}%</span></div>
+    <div className="usage-card"><small>今日请求</small><strong>{usage?.budget?.requests??0}</strong><span>{usage?.day||''}</span></div>
+   </div>
+   {(usage?.summary?.models||[]).length>0&&<table><thead><tr><th>模型</th><th>请求</th><th>输入 token</th><th>输出 token</th><th>成本</th><th>失败</th></tr></thead><tbody>{usage.summary.models.map(m=><tr key={m.model}><td>{m.model}</td><td>{m.requests}</td><td>{m.tokensIn}</td><td>{m.tokensOut}</td><td>{m.cost}</td><td>{m.failures}</td></tr>)}</tbody></table>}
+   <div className="actions" style={{marginTop:12}}><button onClick={loadUsage}>刷新用量</button></div>
+  </section>}
   {tab==='审计'&&<section className="edition">
    <header><h2>审计流水</h2><span className="badge" style={{background:'#eef0e6',color:'#6b7e65'}}>最近 {Math.min(state.audit.length,50)} 条</span></header>
    {state.audit.length?<ol className="audit-list">{state.audit.slice(0,50).map((a,i)=><li key={i}><small>{new Date(a.time).toLocaleString('zh-CN')}</small>{a.actor}｜{a.action}｜{a.target}｜{a.before||'—'} → {a.after||'—'}</li>)}</ol>:<p className="meta">暂无操作记录。</p>}

@@ -112,6 +112,7 @@ export default function App(){
  const linkEventRef=useRef(null),linkPeersRef=useRef(null);
  linkEventRef.current=({kind,peer,x,z,path})=>{
   if(kind==='identity'&&peer&&peer.id){setNetId(peer.id);return;}
+  if(kind==='public-event'&&peer?.text){const e={id:'remote-'+peer.time+'-'+(peer.text||'').slice(0,8),text:peer.text,kind:peer.kind||'walk',time:peer.time||Date.now()};setEvents(p=>p.some(x=>x.id===e.id)?p:[e,...p].slice(0,12));setTimeline(p=>p.some(x=>x.id===e.id)?p:[e,...p].slice(0,100));return;}
   if(kind==='move-accepted'){engine.player.x=x;engine.player.z=z;engine.player.path=(path||[]).map(p=>[p[0],p[1]]);return;}
   if(kind==='move-rejected'){notice('那里走不通，换条路吧');return;}
   if(kind==='zone-accepted'){const zone=peer?.zone||'town';setLocation(zone);if(zone==='hall')setPanel('gallery');setPlaceId(null);notice(zone==='hall'?'已进入武林大会展示馆':'已返回小镇');return;}
@@ -121,7 +122,7 @@ export default function App(){
  };
  linkPeersRef.current=setPeers;
  useEffect(()=>{document.title=`${peers.length?`(${peers.length}) `:''}原子江湖 · 与同路人，共建新江湖`;},[peers.length]);
- const [events,setEvents]=useState(initialEvents),engine=useMemo(()=>new WorldEngine(e=>{setEvents(p=>[e,...p].slice(0,12));setTimeline(p=>[e,...p].slice(0,100));},()=>zoneRef.current),[]),[agents,setAgents]=useState(()=>engine.snapshot());
+ const [events,setEvents]=useState(initialEvents),engine=useMemo(()=>new WorldEngine(e=>{setEvents(p=>[e,...p].slice(0,12));setTimeline(p=>[e,...p].slice(0,100));if(e.kind!=='dm')linkRef.current?.publishEvent?.({kind:e.kind,text:e.text,actor:e.actor||''});},()=>zoneRef.current),[]),[agents,setAgents]=useState(()=>engine.snapshot());
  const [theme,setTheme]=useSaved('theme','jianghu'),[night,setNight]=useSaved('night',false),[nickname,setNickname]=useSaved('nickname','初来江湖的你'),[playerColor,setPlayerColor]=useSaved('color','#427ab5');
  useEffect(()=>{identityRef.current={name:nickname==='初来江湖的你'?'少侠':nickname,color:playerColor};},[nickname,playerColor]);
  useEffect(()=>{

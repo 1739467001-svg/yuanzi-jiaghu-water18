@@ -18,6 +18,17 @@ export const ZONE_ENTRIES={
  hall:{entries:{town:[0,7]},spawn:[0,7]},
 };
 const rooms=new Map();
+// 公开活动流（PRD A05）：房间内可观察的 AI 公开行为（行程、社交、观展）。
+// 只记录公开事实文本，绝不包含私人聊天或记忆正文。
+const PUBLIC_FEED_LIMIT=60;
+const PUBLIC_KINDS=['walk','chat','view','phase','join','leave'];
+const pushPublicEvent=(room,event)=>{
+ if(!room.feed)room.feed=[];
+ room.feed.unshift({...event,time:Date.now()});
+ if(room.feed.length>PUBLIC_FEED_LIMIT)room.feed.length=PUBLIC_FEED_LIMIT;
+ broadcast(room,{t:'public-event',event:room.feed[0]});
+};
+
 // 断线重连补偿（PRD 15.4）：按 房间+身份 记住最近有效位置与区域，短时内重连则恢复。
 const lastPositions=new Map();
 const RESUME_TTL=120000;
@@ -116,6 +127,14 @@ function handleMessage(peer,raw){
    sendTo(peer,{t:'zone-accepted',zone:peer.zone,x:peer.x,z:peer.z});
    break;
   }
+  case 'public-event':{
+   // 仅接受公开行为事件（AI 行程/社交/观展）；拒绝任何疑似私人内容的提交。
+   const kind=String(message.kind||'').slice(0,20);
+   const text=String(message.text||'').slice(0,80);
+   if(!kind||!text||!PUBLIC_KINDS.includes(kind))return;
+   pushPublicEvent(room,{kind,text,actor:String(message.actor||'').slice(0,20)});
+   break;
+  }
   case 'ping':sendTo(peer,{t:'pong',time:Date.now()});break;
   default:break;
  }
@@ -140,7 +159,7 @@ export function attachWorldServer(server,{path='/ws'}={}){
  const peer={id:peerId,name,color,roomId,x:resumed?resumed.x:-3,z:resumed?resumed.z:1,angle:resumed?resumed.angle:0,zone:resumed?resumed.zone:'town',state:resumed?'重回江湖':'自在漫游',path:[],socket,userId:user?.id||null,lastSeen:Date.now()};
   room.peers.set(peer.id,peer);
   socket.isAlive=true;
-  sendTo(peer,{t:'welcome',self:{id:peer.id,name:peer.name,color:peer.color,zone:peer.zone},resumed:!!resumed,room:roomId,capacity:ROOM_CAPACITY,peers:publicSnapshot(room).filter(p=>p.id!==peer.id),walkable:{minX:-18,maxX:18,minZ:-14,maxZ:14}});
+  sendTo(peer,{t:'welcome',self:{id:peer.id,name:peer.name,color:peer.color,zone:peer.zone},resumed:!!resumed,room:roomId,capacity:ROOM_CAPACITY,peers:publicSnapshot(room).filter(p=>p.id!==peer.id),feed:(room.feed||[]).slice(0,12),walkable:{minX:-18,maxX:18,minZ:-14,maxZ:14}});
   broadcast(room,{t:'peer-joined',id:peer.id,name:peer.name,color:peer.color,x:peer.x,z:peer.z,angle:peer.angle,state:peer.state},peer.id);
   socket.on('message',raw=>{peer.lastSeen=Date.now();handleMessage(peer,String(raw));});
   socket.on('pong',()=>{socket.isAlive=true;peer.lastSeen=Date.now();});
@@ -160,5 +179,5 @@ export function attachWorldServer(server,{path='/ws'}={}){
 }
 export function roomSummary(roomId){const room=rooms.get(roomId);return room?{id:room.id,peers:[...room.peers.values()].map(p=>({id:p.id,name:p.name}))}:null;}
 export function worldServerState(){
- return {rooms:[...rooms.values()].map(r=>({id:r.id,peers:r.peers.size})),capacity:ROOM_CAPACITY};
+ return {rooms:[...rooms.values()].map(r=>({id:r.id,peers:r.peers.size,publicEvents:(r.feed||[]).length})),capacity:ROOM_CAPACITY};
 }

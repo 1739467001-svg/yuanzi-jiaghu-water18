@@ -1,6 +1,6 @@
 import {AGENTS} from '../src/world/config.js';
 import {retrieve,demoReply} from '../src/demo.mjs';
-import {budgetState,reserve,settle,recentRequests} from './usageLedger.mjs';
+import {budgetState,reserve,settle,recentRequests,usageSummary} from './usageLedger.mjs';
 import {userForToken,readCookie} from './auth.mjs';
 export {allWorks,retrieve,demoReply} from '../src/demo.mjs';
 export function chatPlugin(env){
@@ -11,7 +11,7 @@ export function chatPlugin(env){
   const send=(status,data)=>{res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(JSON.stringify(data));};
   if(url.pathname==='/api/usage'&&req.method==='GET'){
    const user=userForToken(readCookie(req.headers.cookie));
-   return send(200,{budget:budgetState(dailyBudget),requests:recentRequests(20),viewer:user?{id:user.id,nickname:user.nickname,role:user.role}:null});
+   return send(200,{budget:budgetState(dailyBudget),summary:usageSummary(),requests:recentRequests(20),viewer:user?{id:user.id,nickname:user.nickname,role:user.role}:null});
   }
   if(url.pathname==='/api/status')return send(200,{mode:env.ATOM_LLM_API_KEY?'model':'demo',model:env.ATOM_LLM_API_KEY?env.ATOM_LLM_MODEL||'configured':null,budget:budgetState(dailyBudget)});
   if(url.pathname!=='/api/chat'||req.method!=='POST')return send(404,{error:'接口不存在'});
@@ -37,8 +37,8 @@ export function chatPlugin(env){
    if(!response.ok){settle(requestId,{status:'http_'+response.status});return send(502,{error:`模型服务返回 ${response.status}，请检查服务配置。`});}
    const json=await response.json();const content=json.choices?.[0]?.message?.content;if(typeof content!=='string')throw new Error('empty');
    const usage=json.usage||{};
-   // 结算：按实际 token 计入账本（单价由部署方配置，此处以 token 数为计量口径）。
-   settle(requestId,{model:env.ATOM_LLM_MODEL||'configured',tokensIn:usage.prompt_tokens||0,tokensOut:usage.completion_tokens||0,cost:(usage.total_tokens||0)/1000,status:'ok'});
+   // 结算：按实际 token 计入账本；成本由账本按 ATOM_LLM_PRICE_IN/OUT 换算（未配置则按 1K token 计 1 单位）。
+   settle(requestId,{model:env.ATOM_LLM_MODEL||'configured',tokensIn:usage.prompt_tokens||0,tokensOut:usage.completion_tokens||0,status:'ok'});
    send(200,{text:content,workIds:works.map(w=>w.id),mode:'model'});
   }catch{settle(requestId,{status:'failed'});return send(502,{error:'模型暂时没有回应，请重试。你仍可继续参观展馆。'});}finally{active--;}
  });}};

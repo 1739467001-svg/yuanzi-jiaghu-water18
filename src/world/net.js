@@ -167,6 +167,7 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
   }
   if(m.t==='zone-accepted'){selfZone=m.zone;onEvent?.({kind:'zone-accepted',peer:{id:selfServerId,zone:m.zone},x:m.x,z:m.z});return;}
   if(m.t==='zone-rejected'){onEvent?.({kind:'zone-rejected',peer:{id:selfServerId,reason:m.reason}});return;}
+  if(m.t==='public-event'){onEvent?.({kind:'public-event',peer:{id:m.event?.actor||'ai',text:m.event?.text,kind:m.event?.kind,time:m.event?.time}});return;}
   if(m.t==='peer-moved'||m.t==='peer-state'){
    if(m.id===selfServerId)return;
    const existing=table.peers.get(m.id);
@@ -203,6 +204,7 @@ export function createWsWorldLink({selfId,getIdentity=()=>({name:'同行侠客',
   sendInvite(to){const msg={t:'invite',from:selfServerId,to,session:dmId(),time:Date.now()};post(msg);return msg;},
   sendInviteReply(to,session,accept,reason=''){const msg={t:'invite-reply',from:selfServerId,to,session,accept:!!accept,reason:String(reason).slice(0,60),time:Date.now()};post(msg);return msg;},
   sendBlock(to){const msg={t:'block',from:selfServerId,to,time:Date.now()};post(msg);return msg;},
+  publishEvent(event){const msg={t:'public-event',kind:event?.kind,text:event?.text,actor:event?.actor,time:Date.now()};post(msg);return msg;},
   requestZone(zone){const msg={t:'zone',zone:String(zone||''),time:Date.now()};post(msg);return msg;},
   zone(){return selfZone;},
   peers(){return table.list();},
